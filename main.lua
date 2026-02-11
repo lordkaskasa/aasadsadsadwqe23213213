@@ -6,22 +6,15 @@ local TweenService = CloneRef(game:GetService("TweenService"))
 local UserInputService = CloneRef(game:GetService("UserInputService"))
 local RunService = CloneRef(game:GetService("RunService"))
 local CoreGui = CloneRef(game:GetService("CoreGui"))
-local HttpService = CloneRef(game:GetService("HttpService"))
 
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 local isStudio = RunService:IsStudio()
-local guiParent = isStudio and LocalPlayer.PlayerGui or (gethui and gethui()) or CoreGui
+local guiParent = isStudio and LocalPlayer.PlayerGui or CoreGui
 
 pcall(function()
-	local searchParents = {guiParent}
-	if guiParent ~= CoreGui then table.insert(searchParents, CoreGui) end
-	if gethui and gethui() ~= guiParent then table.insert(searchParents, gethui()) end
-	for _, parent in ipairs(searchParents) do
-		for _, g in ipairs(parent:GetChildren()) do
-			if g:IsA("ScreenGui") and g.Name:sub(1, 9) == "LemonUI2_" then
-				g:Destroy()
-			end
+	for _, g in ipairs(guiParent:GetChildren()) do
+		if g:IsA("ScreenGui") and g.Name:sub(1, 9) == "LemonUI2_" then
+			g:Destroy()
 		end
 	end
 end)
@@ -125,19 +118,7 @@ function Library:CreateWindow(config)
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	})
 
-	-- protect gui from detection / enumeration
-	pcall(function()
-		if syn and syn.protect_gui then
-			syn.protect_gui(screenGui)
-		elseif protect_gui then
-			protect_gui(screenGui)
-		end
-	end)
-	pcall(function()
-		if sethiddenproperty then
-			sethiddenproperty(screenGui, "Name", screenGui.Name)
-		end
-	end)
+
 
 	-- ══════════════ WATERMARK ══════════════
 
@@ -184,14 +165,7 @@ function Library:CreateWindow(config)
 			wmFpsCount = 0
 			wmFpsTimer = 0
 			local parts = { title }
-			pcall(function()
-				local ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-				table.insert(parts, ping .. "ms")
-			end)
 			table.insert(parts, wmCurrentFps .. "fps")
-			pcall(function()
-				table.insert(parts, #Players:GetPlayers() .. "plr")
-			end)
 			watermarkLabel.Text = table.concat(parts, "  |  ")
 		end
 	end))
@@ -225,18 +199,7 @@ function Library:CreateWindow(config)
 	mk("UICorner", windowFrame, { CornerRadius = UDim.new(0, 6) })
 	mk("UIStroke", windowFrame, { Color = Theme.Border, Thickness = 1, Transparency = 0.4 })
 
-	local shadow = mk("ImageLabel", windowFrame, {
-		Size = UDim2.new(1, 30, 1, 30),
-		Position = UDim2.new(0.5, 0, 0.5, 0),
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundTransparency = 1,
-		Image = "rbxassetid://6014261993",
-		ImageColor3 = Color3.new(0, 0, 0),
-		ImageTransparency = 0.5,
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = Rect.new(49, 49, 450, 450),
-		ZIndex = 0,
-	})
+
 
 	-- ══════════════ TITLE BAR ══════════════
 
@@ -551,7 +514,7 @@ function Library:CreateWindow(config)
 	local function openColorPicker(absPos, absSize, color, element, callback)
 		cpH, cpS, cpV = Color3.toHSV(color)
 		cpTarget = { element = element, callback = callback, previewBtn = element._previewBtn }
-		local vp = Camera.ViewportSize
+		local vp = screenGui.AbsoluteSize
 		local px = math.clamp(absPos.X, 10, vp.X - 230)
 		local py = math.clamp(absPos.Y + absSize.Y + 4, 10, vp.Y - 216)
 		cpPanel.Position = UDim2.fromOffset(px, py)
@@ -623,12 +586,6 @@ function Library:CreateWindow(config)
 				tw(windowFrame, { Size = size, BackgroundTransparency = 0 }, 0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out).Completed:Connect(function()
 					isAnimating = false
 				end)
-				for _, desc in ipairs(windowFrame:GetDescendants()) do
-					if desc:IsA("Frame") and desc.BackgroundTransparency == 0 then
-					elseif desc:IsA("TextLabel") then
-						desc.TextTransparency = 0
-					end
-				end
 			else
 				tw(windowFrame, {
 					Size = size - UDim2.fromOffset(15, 15),
@@ -1106,7 +1063,7 @@ function Library:CreateWindow(config)
 
 					local absPos = btnFrame.AbsolutePosition
 					local absSize = btnFrame.AbsoluteSize
-					local vp = Camera.ViewportSize
+					local vp = screenGui.AbsoluteSize
 					local maxH = math.min(#internal.items * 22 + 6, 180)
 
 					local ddX = math.clamp(absPos.X, 4, vp.X - absSize.X - 4)
@@ -1598,21 +1555,24 @@ function Library:CreateWindow(config)
 
 		tw(progressBar, { Size = UDim2.new(0, 0, 0, 2) }, duration, Enum.EasingStyle.Linear)
 
-		task.delay(duration, function()
+		spawn(function()
+			wait(duration)
 			if card and card.Parent then
 				tw(card, { BackgroundTransparency = 1 }, 0.3)
-				for _, desc in ipairs(card:GetDescendants()) do
-					if desc:IsA("TextLabel") then
-						tw(desc, { TextTransparency = 1 }, 0.3)
-					elseif desc:IsA("Frame") then
-						tw(desc, { BackgroundTransparency = 1 }, 0.3)
-					elseif desc:IsA("UIStroke") then
-						tw(desc, { Transparency = 1 }, 0.3)
+				local stroke = card:FindFirstChildOfClass("UIStroke")
+				if stroke then tw(stroke, { Transparency = 1 }, 0.3) end
+				for _, child in ipairs(card:GetChildren()) do
+					if child:IsA("Frame") then
+						tw(child, { BackgroundTransparency = 1 }, 0.3)
+						for _, sub in ipairs(child:GetChildren()) do
+							if sub:IsA("TextLabel") then
+								tw(sub, { TextTransparency = 1 }, 0.3)
+							end
+						end
 					end
 				end
-				task.delay(0.35, function()
-					if card and card.Parent then card:Destroy() end
-				end)
+				wait(0.35)
+				if card and card.Parent then card:Destroy() end
 			end
 		end)
 	end
