@@ -11,12 +11,17 @@ local HttpService = CloneRef(game:GetService("HttpService"))
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local isStudio = RunService:IsStudio()
-local guiParent = isStudio and LocalPlayer.PlayerGui or CoreGui
+local guiParent = isStudio and LocalPlayer.PlayerGui or (gethui and gethui()) or CoreGui
 
 pcall(function()
-	for _, g in ipairs(guiParent:GetChildren()) do
-		if g:IsA("ScreenGui") and g.Name:sub(1, 9) == "LemonUI2_" then
-			g:Destroy()
+	local searchParents = {guiParent}
+	if guiParent ~= CoreGui then table.insert(searchParents, CoreGui) end
+	if gethui and gethui() ~= guiParent then table.insert(searchParents, gethui()) end
+	for _, parent in ipairs(searchParents) do
+		for _, g in ipairs(parent:GetChildren()) do
+			if g:IsA("ScreenGui") and g.Name:sub(1, 9) == "LemonUI2_" then
+				g:Destroy()
+			end
 		end
 	end
 end)
@@ -119,6 +124,20 @@ function Library:CreateWindow(config)
 		IgnoreGuiInset = true,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	})
+
+	-- protect gui from detection / enumeration
+	pcall(function()
+		if syn and syn.protect_gui then
+			syn.protect_gui(screenGui)
+		elseif protect_gui then
+			protect_gui(screenGui)
+		end
+	end)
+	pcall(function()
+		if sethiddenproperty then
+			sethiddenproperty(screenGui, "Name", screenGui.Name)
+		end
+	end)
 
 	-- ══════════════ WATERMARK ══════════════
 
