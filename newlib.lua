@@ -5187,9 +5187,9 @@ local Library do
                 BorderColor3 = FromRGB(0, 0, 0),
                 Text = "ragequit.cc | " .. LocalPlayer.Name,
                 BackgroundTransparency = 1,
-                AnchorPoint = Vector2New(0.5, 1),
-                Position = UDim2New(0.5, 0, 1, -8),
-                Size = UDim2New(1, -16, 0, 12),
+                AnchorPoint = Vector2New(0.5, 0),
+                Position = UDim2New(0.5, 0, 0, 89),
+                Size = UDim2New(1, -16, 0, 10),
                 BorderSizePixel = 0,
                 TextSize = 9,
                 BackgroundColor3 = FromRGB(255, 255, 255)
