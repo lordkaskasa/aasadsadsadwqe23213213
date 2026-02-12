@@ -5133,8 +5133,7 @@ local Library do
             Size = Window.Size
         }) do
             -- Background image overlay
-            local bgImage = ""
-            pcall(function() bgImage = getcustomasset(Library.Folders.Assets .. "/background.jpg") end)
+            local bgImage = Library:GetImage("Background") or ""
             Items["BackgroundImage"] = Instances:Create("ImageLabel", {
                 Parent = Items["Window"].Instance,
                 Name = "\0",
@@ -5146,6 +5145,7 @@ local Library do
                 Position = UDim2New(0, 0, 0, 0),
                 ZIndex = 1,
                 BorderSizePixel = 0,
+                ClipsDescendants = false,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
 
@@ -5163,8 +5163,7 @@ local Library do
 
             Items["Window"].Instance.Visible = false
 
-            local logoImage = ""
-            pcall(function() logoImage = getcustomasset(Library.Folders.Assets .. "/logo.jpg") end)
+            local logoImage = Library:GetImage("Logo") or ""
             Items["Logo"] = Instances:Create("ImageLabel", {
                 Parent = Items["Side"].Instance,
                 Name = "\0",
@@ -5179,6 +5178,23 @@ local Library do
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
+
+            Items["UsernameLabel"] = Instances:Create("TextLabel", {
+                Parent = Items["Side"].Instance,
+                Name = "\0",
+                FontFace = Library.Font,
+                TextColor3 = FromRGB(255, 255, 255),
+                BorderColor3 = FromRGB(0, 0, 0),
+                Text = "ragequit.cc | " .. LocalPlayer.Name,
+                BackgroundTransparency = 1,
+                AnchorPoint = Vector2New(0.5, 0),
+                Position = UDim2New(0.5, 0, 0, 88),
+                Size = UDim2New(1, -16, 0, 12),
+                BorderSizePixel = 0,
+                TextSize = 9,
+                BackgroundColor3 = FromRGB(255, 255, 255)
+            })  Items["UsernameLabel"]:AddToTheme({TextColor3 = "Text"})
+            Items["UsernameLabel"]:TextBorder()
 
             Items["Pages"] = Instances:Create("Frame", {
                 Parent = Items["Side"].Instance,
