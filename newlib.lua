@@ -256,7 +256,9 @@ local Library do
         local ImageLink = ImageData[2]
         
         if not isfile(Library.Folders.Assets .. "/" .. ImageName) then
-            writefile(Library.Folders.Assets .. "/" .. ImageName, game:HttpGet(ImageLink))
+            pcall(function()
+                writefile(Library.Folders.Assets .. "/" .. ImageName, game:HttpGet(ImageLink))
+            end)
         end
     end
 
@@ -5131,10 +5133,12 @@ local Library do
             Size = Window.Size
         }) do
             -- Background image overlay
+            local bgImage = ""
+            pcall(function() bgImage = getcustomasset(Library.Folders.Assets .. "/background.jpg") end)
             Items["BackgroundImage"] = Instances:Create("ImageLabel", {
                 Parent = Items["Window"].Instance,
                 Name = "\0",
-                Image = getcustomasset(Library.Folders.Assets .. "/background.jpg"),
+                Image = bgImage,
                 BackgroundTransparency = 1,
                 ImageTransparency = 0.85,
                 ScaleType = Enum.ScaleType.Crop,
@@ -5159,6 +5163,8 @@ local Library do
 
             Items["Window"].Instance.Visible = false
 
+            local logoImage = ""
+            pcall(function() logoImage = getcustomasset(Library.Folders.Assets .. "/logo.jpg") end)
             Items["Logo"] = Instances:Create("ImageLabel", {
                 Parent = Items["Side"].Instance,
                 Name = "\0",
@@ -5166,7 +5172,7 @@ local Library do
                 ScaleType = Enum.ScaleType.Fit,
                 BorderColor3 = FromRGB(0, 0, 0),
                 AnchorPoint = Vector2New(0.5, 0),
-                Image = getcustomasset(Library.Folders.Assets .. "/logo.jpg"),
+                Image = logoImage,
                 BackgroundTransparency = 1,
                 Position = UDim2New(0.5, 0, 0, 12),
                 Size = UDim2New(0, 75, 0, 75),
