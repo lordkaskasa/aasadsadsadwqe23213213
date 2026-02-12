@@ -5144,7 +5144,7 @@ local Library do
                 ScaleType = Enum.ScaleType.Crop,
                 Size = UDim2New(1, 0, 1, 0),
                 Position = UDim2New(0, 0, 0, 0),
-                ZIndex = 0,
+                ZIndex = 1,
                 BorderSizePixel = 0,
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
